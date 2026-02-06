@@ -11,3 +11,8 @@ class ObjectStop(BaseModel):
 class BusRouteData(BaseModel):
     obj: ObjectStop
     order: int
+
+
+class BusName(BaseModel):
+    id: int
+    name: str

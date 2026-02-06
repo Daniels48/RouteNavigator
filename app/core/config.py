@@ -1,7 +1,12 @@
 import os
 from pydantic_settings import BaseSettings
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(
+    os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__))
+    )
+)
+print(BASE_DIR)
 
 
 class DBConfig(BaseSettings):

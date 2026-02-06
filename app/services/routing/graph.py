@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Tuple
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,12 +7,13 @@ from sqlalchemy.orm import selectinload
 
 from app.db.models import Route, BusRoute
 
-graph_cache: Optional[defaultdict[int, List[Dict[str, int]]]] = None
+graph_cache: Tuple[defaultdict[int, List[dict]], Dict[int, dict]] | None = None
 
 
-async def get_full_graph(db: AsyncSession) -> defaultdict[int, list]:
+async def get_full_graph(db: AsyncSession) -> Tuple[defaultdict[int, List[dict]], Dict[int, dict]]:
     graph = defaultdict(list)
     seen_edges = defaultdict(set)  # prev_stop_id -> set((curr_stop_id, route_id))
+    stops_info = {}
 
     query = (
         select(Route)
@@ -28,16 +29,23 @@ async def get_full_graph(db: AsyncSession) -> defaultdict[int, list]:
     for route in routes:
         stops_sorted = sorted(route.stops, key=lambda br: br.order)
         for index, item in enumerate(stops_sorted[1:], 1):  # начиная со второго
-            prev_stop_id = stops_sorted[index - 1].stop.id
-            curr_stop_id = item.stop.id
-            edge_key = (curr_stop_id, route.id)
+            prev_stop = stops_sorted[index - 1].stop
+            curr_stop = item.stop
+            edge_key = (curr_stop.id, route.id)
 
-            if edge_key in seen_edges[prev_stop_id]:
+            # Заполняем stops_info (lat/lon)
+            if prev_stop.id not in stops_info:
+                stops_info[prev_stop.id] = {"lat": prev_stop.lat, "lon": prev_stop.lon, "name": prev_stop.name}
+            if curr_stop.id not in stops_info:
+                stops_info[curr_stop.id] = {"lat": curr_stop.lat, "lon": curr_stop.lon, "name": curr_stop.name}
+
+
+            if edge_key in seen_edges[prev_stop.id]:
                 continue  # уже добавлено
 
-            seen_edges[prev_stop_id].add(edge_key)
-            graph[prev_stop_id].append({
-                "stop_id": curr_stop_id,
+            seen_edges[prev_stop.id].add(edge_key)
+            graph[prev_stop.id].append({
+                "stop_id": curr_stop.id,
                 "travel_time": item.travel_time,
                 "route_id": route.id,
                 "obj_stop": item.stop,
@@ -45,9 +53,9 @@ async def get_full_graph(db: AsyncSession) -> defaultdict[int, list]:
                 "obj_stop_prev": stops_sorted[index - 1].stop
             })
 
-    return graph
+    return graph, stops_info
 
-async def get_cached_graph(db: AsyncSession) -> defaultdict[int, List[Dict[str, int]]]:
+async def get_cached_graph(db: AsyncSession) -> Tuple[defaultdict[int, List[dict]], Dict[int, dict]]:
     global graph_cache
     if graph_cache is None:
         graph_cache = await get_full_graph(db)

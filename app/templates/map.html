@@ -48,21 +48,68 @@
       border-bottom: 2px solid black;
     }
 
-    .inputs {
-      flex: 9;
-      padding: 5px;
-    }
-
     .json-output {
       flex: 4;
-      padding: 10px;
+      padding: 5px;
       background: #eaeaea;
       overflow: auto;
       font-family: monospace;
       white-space: pre-wrap;
     }
 
-    .
+    .inputs {
+      flex: 9;
+      padding: 10px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .inputs_inner {
+      display: flex;
+      flex-direction: column;
+
+    }
+
+    .inputs_inner>div {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .h2_inp {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .view_routes {
+      padding: 5px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .label_route {
+      font-weight: 700;
+      font-size: 18px;
+      padding: 8px 0;
+    }
+
+    .json_response {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .item {
+      margin-bottom: 5px;
+    }
+
+    .label_view {
+      margin-bottom: 5px;
+    }
+
+    .btn_view_route {
+      margin: 5px 0;
+    }
   </style>
 </head>
 
@@ -80,29 +127,47 @@
           </div>
         </div>
         <div class="inputs">
-          <h2>Поиск маршрута</h2>
-
-          <label for="start">Откуда:</label>
-          <select id="start">
-            {% for stop in stops %}
-            <option value="{{ stop.id }}">{{ stop.name }}</option>
-            {% endfor %}
-          </select>
-
-          <label for="end">Куда:</label>
-          <select id="end">
-            {% for stop in stops %}
-            <option value="{{ stop.id }}">{{ stop.name }}</option>
-            {% endfor %}
-          </select>
-
-          <label for="time">Время:</label>
-          <input type="time" id="time" name="appt" min="08:00" max="22:00" step="1" value="08:00" required>
-          <button onclick="searchRoute()">Поиск</button>
+          <div class="inputs_inner">
+            <div class="h2_inp">Поиск маршрута</div>
+            <div class="first_input item">
+              <label for="start">Откуда:</label>
+              <select id="start">
+                {% for stop in stops %}
+                <option value="{{ stop.id }}">{{ stop.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="second_inp item">
+              <label for="end">Куда:</label>
+              <select id="end">
+                {% for stop in stops %}
+                <option value="{{ stop.id }}">{{ stop.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="three_inp item">
+              <label for="transfer">Количество пересадок:</label>
+              <input type="number" id="transfer" name="transfer" min="0" max="2" step="1" value="0" required>
+            </div>
+            <!--//<label for="time">Время:</label>
+              //<input type="time" id="time" name="appt" min="08:00" max="22:00" step="1" value="08:00" required>
+            </div>-->
+            <button onclick="searchRoute()">Поиск</button>
+          </div>
+          <div class="view_routes">
+            <div class="label_route">Показать маршрут</div>
+            <label class="label_view" for="view_route">Маршрут:</label>
+            <select id="view_route">
+              {% for b in bus %}
+              <option value="{{ b.id }}">{{ b.name }}</option>
+              {% endfor %}
+            </select>
+            <button onclick="viewRoute()" class="btn_view_route">Показать</button>
+          </div>
         </div>
       </div>
       <div class="json-output">
-        <h3>JSON ответ</h3>
+        <div class="json_response"> JSON ответ</div>
         <pre id="jsonData"></pre>
       </div>
     </div>
@@ -147,6 +212,7 @@
     };
 
     var stops = {{ stops | tojson }};
+    var bus = {{ bus | tojson }};
     let json_cont = document.getElementById("jsonData");
 
     var map = L.map('map').setView([51.6755, 39.2089], 13);
@@ -154,55 +220,77 @@
       //attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    //stops.forEach(function (stop) {
-    //let marker = L.marker([stop.lat, stop.lon]).addTo(map).bindPopup(stop.name);
-    // marker.on('click', function () {
-    //click_on_marker(marker, stop);
-    //})
-    //});
-
     let routeLayerGroup = L.layerGroup().addTo(map);
 
     async function searchRoute() {
       const start = document.getElementById("start").value;
       const end = document.getElementById("end").value;
+      const transfer = document.getElementById("transfer").value;
 
       if (start != end) {
-        const time = document.getElementById("time").value;
-
-        const response = await fetch(`/api/search?start=${start}&stop=${end}&time=${time}`);
+        const response = await fetch(`/api/search?start=${start}&stop=${end}&transfer=${transfer}`);
         const data = await response.json();
-
-        json_cont.textContent = JSON.stringify(data, null, 2);
-
-        // Очистка старых маршрутов
-        routeLayerGroup.clearLayers();
-
-        const routes = data.result.routes;
         const colors = ["red", "blue", "green", "orange", "purple", "yellow", "black", "white"];
-        let colorIndex = 0;
-        Object.entries(routes).forEach(([busName, stops]) => {
-          const latlngs = stops.map(s => [s.lat, s.lon]);
 
-          // Линия маршрута
-          const polyline = L.polyline(latlngs, { color: colors[colorIndex % colors.length], weight: 6 })
-            .addTo(routeLayerGroup)
-            .bindPopup(busName);
+        if (transfer == 0) {
+          routeLayerGroup.clearLayers();
+          json_cont.textContent = JSON.stringify(data.result.new, null, 2);
+        }
+        else {
+          routeLayerGroup.clearLayers();
 
-          // Точки остановок
-          stops.forEach(stop => {
-            L.circleMarker([stop.lat, stop.lon], { radius: 5, color: colors[colorIndex % colors.length] })
+          const routes = data.result.routes;
+          delete data.result.routes;
+
+          json_cont.textContent = JSON.stringify(data.result, null, 2);
+          const colors = ["red", "blue", "green", "orange", "purple", "yellow", "black", "white"];
+          let colorIndex = 0;
+          Object.entries(routes).forEach(([busName, stops]) => {
+            const latlngs = stops.map(s => [s.lat, s.lon]);
+
+            // Линия маршрута
+            const polyline = L.polyline(latlngs, { color: colors[colorIndex % colors.length], weight: 6 })
               .addTo(routeLayerGroup)
-              .bindTooltip(stop.name, { permanent: false });
-          });
+              .bindPopup(busName);
 
-          colorIndex++;
-        });
+            // Точки остановок
+            stops.forEach(stop => {
+              L.circleMarker([stop.lat, stop.lon], { radius: 5, color: colors[colorIndex % colors.length] })
+                .addTo(routeLayerGroup)
+                .bindTooltip(stop.name, { permanent: false });
+            });
+
+            colorIndex++;
+          })
+        };
       }
       else { json_cont.textContent = JSON.stringify("Выберете разные остановки", null, 2); }
-    }
+    };
 
+    async function viewRoute() {
+      const doc_obj = document.getElementById("view_route");
+      const id_obj = doc_obj.value;
+      const name_obj = doc_obj.options[doc_obj.selectedIndex].text;
 
+      const response = await fetch("/api/bus_view", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: id_obj, name: name_obj })
+      });
+      const data = await response.json();
+      const colors = ["red", "blue", "green", "orange", "purple", "yellow", "black", "white"];
+      let colorIndex = 0;
+
+      json_cont.textContent = JSON.stringify(data, null, 2);
+      routeLayerGroup.clearLayers();
+
+      data.result.forEach(route => {
+        const stops = route.stops;
+        const latlngs = stops.map(s => [s.lat, s.lon]);
+        const polyline = L.polyline(latlngs, { color: colors[colorIndex % colors.length], weight: 6 }).addTo(routeLayerGroup)
+        colorIndex++;
+      });
+    };
 
     map.on('click', function (e) {
       var lat = e.latlng.lat;
@@ -218,83 +306,88 @@
 
     });
 
+    function map_all_view() {
+      function resetRoute() {
+        routeStops = [];
+        if (routeLine) {
+          map.removeLayer(routeLine);
+          routeLine = null;
+        }
+        routeMarkers.forEach(m => {
+          map.removeLayer(m); // убираем старые красные
+        });
+        routeMarkers = [];
 
+        // пересоздаём маркеры (чтобы вернуть им нормальный цвет)
+        stops.forEach(function (stop) {
+          L.marker([stop.lat, stop.lon]).addTo(map)
+            .bindPopup(stop.name)
+            .on('click', function () {
+              if (!routeMode) return;
+              var idx = routeStops.length + 1;
 
-    document.getElementById("toggleRouteMode").onclick = function () {
-      routeMode = !routeMode;
-      this.textContent = routeMode ? "Режим маршрута включен" : "Начать маршрут";
-      if (!routeMode) {
-        resetRoute(); // можно сбросить при выходе
+              this.setIcon(new L.Icon({
+                iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+              }));
+
+              this.bindTooltip(idx.toString(), { permanent: true, direction: "top" }).openTooltip();
+              routeStops.push({ lat: stop.lat, lon: stop.lon, order: idx });
+              routeMarkers.push(this);
+
+              drawRoute();
+            });
+        });
       }
-    };
+      document.getElementById("toggleRouteMode").onclick = function () {
+        routeMode = !routeMode;
+        this.textContent = routeMode ? "Режим маршрута включен" : "Начать маршрут";
+        if (!routeMode) {
+          resetRoute(); // можно сбросить при выходе
+        }
+      };
 
+      function click_on_marker(marker, stop) {
+        if (!routeMode) return; // только в режиме маршрута
 
-    function click_on_marker(marker, stop) {
-      if (!routeMode) return; // только в режиме маршрута
+        var idx = routeStops.length + 1;
 
-      var idx = routeStops.length + 1;
+        // делаем маркер красным
+        marker.setIcon(new L.Icon({
+          iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png',
+          iconSize: [32, 32],
+          iconAnchor: [16, 32],
+          popupAnchor: [0, -32]
+        }));
 
-      // делаем маркер красным
-      marker.setIcon(new L.Icon({
-        iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png',
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32]
-      }));
+        // номер над маркером
+        marker.bindTooltip(idx.toString(), { permanent: true, direction: "top" }).openTooltip();
 
-      // номер над маркером
-      marker.bindTooltip(idx.toString(), { permanent: true, direction: "top" }).openTooltip();
+        routeStops.push({ obj: stop, order: idx });
 
-      routeStops.push({ obj: stop, order: idx });
+        routeJsonView.push({ name: stop.name, order: idx });
 
-      routeJsonView.push({ name: stop.name, order: idx });
+        json_cont.textContent = JSON.stringify(routeJsonView, null, 2);
+        routeMarkers.push(marker);
 
-      json_cont.textContent = JSON.stringify(routeJsonView, null, 2);
-      routeMarkers.push(marker);
-
-      drawRoute();
-    }
-
-    function drawRoute() {
-      if (routeLine) {
-        map.removeLayer(routeLine);
+        drawRoute();
       }
-      var latlngs = routeStops.map(s => [s.obj.lat, s.obj.lon]);
-      routeLine = L.polyline(latlngs, { color: 'red', weight: 10 }).addTo(map);
-    }
 
-    function resetRoute() {
-      routeStops = [];
-      if (routeLine) {
-        map.removeLayer(routeLine);
-        routeLine = null;
-      }
-      routeMarkers.forEach(m => {
-        map.removeLayer(m); // убираем старые красные
-      });
-      routeMarkers = [];
+      function drawRoute() {
+        if (routeLine) {
+          map.removeLayer(routeLine);
+        }
+        var latlngs = routeStops.map(s => [s.obj.lat, s.obj.lon]);
+        routeLine = L.polyline(latlngs, { color: 'red', weight: 10 }).addTo(map);
+      };
 
-      // пересоздаём маркеры (чтобы вернуть им нормальный цвет)
       stops.forEach(function (stop) {
-        L.marker([stop.lat, stop.lon]).addTo(map)
-          .bindPopup(stop.name)
-          .on('click', function () {
-            if (!routeMode) return;
-            var idx = routeStops.length + 1;
-
-            this.setIcon(new L.Icon({
-              iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png',
-              iconSize: [32, 32],
-              iconAnchor: [16, 32],
-              popupAnchor: [0, -32]
-            }));
-
-            this.bindTooltip(idx.toString(), { permanent: true, direction: "top" }).openTooltip();
-            routeStops.push({ lat: stop.lat, lon: stop.lon, order: idx });
-            routeMarkers.push(this);
-
-            drawRoute();
-          });
+        let marker = L.marker([stop.lat, stop.lon]).addTo(map).bindPopup(stop.name);
+        marker.on('click', function () {
+          click_on_marker(marker, stop);
+        })
       });
     }
   </script>
