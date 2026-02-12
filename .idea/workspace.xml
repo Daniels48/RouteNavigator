@@ -4,48 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ba70060d-5e33-46b5-b3c1-4d5e8767434f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/api/routes/routes.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/services/maintenance/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/services/maintenance/travel_time_recalculator.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/services/routing/RoutingService.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/services/routing/finders/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/services/routing/finders/astar.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/services/routing/formatter.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/services/routing/graph_builder.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/services/routing/heap.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/services/routing/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/services/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/static/css/1.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/static/js/1.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/static/tiles/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/views/map/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/views/map/router.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/views/router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/core/templates.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/repositories/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/bus_routers/Repository/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/repositories/bus_repositories.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/bus_routers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/repositories/routes_repositories.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/bus_routers/routes.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/bus_routers/schemas.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/buses/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/buses/routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/buses/schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/buses/schemas.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/router.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/routes/schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/routes/schemas.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/stops/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/repositories/stop_respositories.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/stops/schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/stops/schemas.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/core/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/core/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/services/routing/astar.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/services/routing/graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/routing/graph.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/services/routing/search_bus_for_route.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/services/routing/travel_time.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/bus/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/bus/busService.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/map.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/map.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-    </list>
+    <list default="true" id="ba70060d-5e33-46b5-b3c1-4d5e8767434f" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
