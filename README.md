@@ -48,6 +48,11 @@ DATABASE_URL=postgresql+asyncpg://user:password@localhost/dbname
 5️⃣ Запустить сервер
 uvicorn app.main:app --reload
 
+docker exec -it app alembic -c app/db/alembic.ini upgrade head
+
+docker exec -e PGPASSWORD=example -i db psql -U example -d mydb < 02_data.sql
+
+
 
 Открыть в браузере:
 
