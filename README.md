@@ -22,24 +22,28 @@
 
 ## 🚀 Запуск проекта
 
-1️⃣ Клонировать репозиторий
+### 1️⃣ Клонировать репозиторий
 ```bash
-git clone <repo_url>
-cd project
+git clone https://github.com/Daniels48/RouteNavigator.git
 ```
 
-2️⃣ Создать файл .env
+### 2️⃣ Создать файл .env
+```env
+DB_NAME=mydb
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=example
+DB_PASSWORD=example
+```
 
-
-3️⃣ Запустить контейнеры
+### 3️⃣ Запустить контейнеры
 ```bash
 docker compose up -d --build
 ```
 
-4️⃣ Загрузить тестовые данные
+### 4️⃣ Загрузить тестовые данные
 ```bash
 docker exec -e PGPASSWORD=example -i db psql -U example -d mydb < 02_data.sql
 ```
 
-5️⃣ Открыть в браузере:
-http://localhost:8000/
+### 5️⃣ Открыть в браузере: http://localhost:8000/
