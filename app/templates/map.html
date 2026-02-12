@@ -5,112 +5,7 @@
   <meta charset="utf-8" />
   <title>Остановки Воронежа</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <style>
-    html,
-    body {
-      height: 100%;
-      margin: 0;
-    }
-
-    .container {
-      display: flex;
-      flex-direction: row;
-      height: 100vh;
-    }
-
-    #map {
-      flex: 1;
-      cursor: pointer;
-    }
-
-    .content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      border-right: 1px solid #ccc;
-    }
-
-    .functional {
-      flex: 1;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      overflow: auto;
-      background: #f9f9f9;
-
-    }
-
-    .buttons {
-      flex: 1;
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      border-bottom: 2px solid black;
-    }
-
-    .json-output {
-      flex: 4;
-      padding: 5px;
-      background: #eaeaea;
-      overflow: auto;
-      font-family: monospace;
-      white-space: pre-wrap;
-    }
-
-    .inputs {
-      flex: 9;
-      padding: 10px;
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-    }
-
-    .inputs_inner {
-      display: flex;
-      flex-direction: column;
-
-    }
-
-    .inputs_inner>div {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-    }
-
-    .h2_inp {
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .view_routes {
-      padding: 5px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .label_route {
-      font-weight: 700;
-      font-size: 18px;
-      padding: 8px 0;
-    }
-
-    .json_response {
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .item {
-      margin-bottom: 5px;
-    }
-
-    .label_view {
-      margin-bottom: 5px;
-    }
-
-    .btn_view_route {
-      margin: 5px 0;
-    }
-  </style>
+  <link rel="stylesheet" href="/static/css/1.css">
 </head>
 
 <body>
@@ -118,13 +13,6 @@
     <div class="content">
       <div class="functional">
         <div class="buttons">
-          <div class="func_buttons">
-            <button id="toggleRouteMode">Создать маршрут</button>
-            <button onclick="saveRoute()">Сохранить маршрут</button>
-          </div>
-          <div class="func_reset">
-            <button onclick="resetRoute()">Сбросить</button>
-          </div>
         </div>
         <div class="inputs">
           <div class="inputs_inner">
@@ -145,14 +33,7 @@
                 {% endfor %}
               </select>
             </div>
-            <div class="three_inp item">
-              <label for="transfer">Количество пересадок:</label>
-              <input type="number" id="transfer" name="transfer" min="0" max="2" step="1" value="0" required>
-            </div>
-            <!--//<label for="time">Время:</label>
-              //<input type="time" id="time" name="appt" min="08:00" max="22:00" step="1" value="08:00" required>
-            </div>-->
-            <button onclick="searchRoute()">Поиск</button>
+            <button id="searchBtn">Поиск</button>
           </div>
           <div class="view_routes">
             <div class="label_route">Показать маршрут</div>
@@ -162,7 +43,7 @@
               <option value="{{ b.id }}">{{ b.name }}</option>
               {% endfor %}
             </select>
-            <button onclick="viewRoute()" class="btn_view_route">Показать</button>
+            <button id="view_route_Btn" class="btn_view_route">Показать</button>
           </div>
         </div>
       </div>
@@ -173,224 +54,15 @@
     </div>
     <div id="map"></div>
   </div>
-  <link rel="stylesheet" src="/static/css/leaflet.css" />
   <script src="/static/js/leaflet.js"></script>
   <script src="/static/js/leaflet.polylineDecorator.js"></script>
-  <script>
-    var routeMode = false;
-    var routeStops = [];
-    var routeMarkers = [];
-    var routeLine = null;
-    let routeJsonView = [];
 
-    function saveRoute() {
-      if (routeStops.length === 0) {
-        alert("Маршрут пустой!");
-        return;
-      }
+    <script>
+      window.STOPS = {{ stops | tojson }};
+      window.BUS = {{ bus | tojson }};
+    </script>
+  <script src="/static/js/1.js"></script>
 
-      // Отправка на сервер
-      fetch("/api/bus_routes", {  // путь к твоему endpoint FastAPI
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(routeStops)
-      })
-        .then(response => {
-          if (!response.ok) throw new Error("Ошибка при сохранении маршрута");
-          return response.json();
-        })
-        .then(result => {
-          console.log("Маршрут сохранён:", result);
-          alert("Маршрут успешно сохранён!");
-        })
-        .catch(error => {
-          console.error("Ошибка:", error);
-          alert("Не удалось сохранить маршрут");
-        });
-    };
-
-    var stops = {{ stops | tojson }};
-    var bus = {{ bus | tojson }};
-    let json_cont = document.getElementById("jsonData");
-
-    var map = L.map('map').setView([51.6755, 39.2089], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      //attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    let routeLayerGroup = L.layerGroup().addTo(map);
-
-    async function searchRoute() {
-      const start = document.getElementById("start").value;
-      const end = document.getElementById("end").value;
-      const transfer = document.getElementById("transfer").value;
-
-      if (start != end) {
-        const response = await fetch(`/api/search?start=${start}&stop=${end}&transfer=${transfer}`);
-        const data = await response.json();
-        const colors = ["red", "blue", "green", "orange", "purple", "yellow", "black", "white"];
-
-        if (transfer == 0) {
-          routeLayerGroup.clearLayers();
-          json_cont.textContent = JSON.stringify(data.result.new, null, 2);
-        }
-        else {
-          routeLayerGroup.clearLayers();
-
-          const routes = data.result.routes;
-          delete data.result.routes;
-
-          json_cont.textContent = JSON.stringify(data.result, null, 2);
-          const colors = ["red", "blue", "green", "orange", "purple", "yellow", "black", "white"];
-          let colorIndex = 0;
-          Object.entries(routes).forEach(([busName, stops]) => {
-            const latlngs = stops.map(s => [s.lat, s.lon]);
-
-            // Линия маршрута
-            const polyline = L.polyline(latlngs, { color: colors[colorIndex % colors.length], weight: 6 })
-              .addTo(routeLayerGroup)
-              .bindPopup(busName);
-
-            // Точки остановок
-            stops.forEach(stop => {
-              L.circleMarker([stop.lat, stop.lon], { radius: 5, color: colors[colorIndex % colors.length] })
-                .addTo(routeLayerGroup)
-                .bindTooltip(stop.name, { permanent: false });
-            });
-
-            colorIndex++;
-          })
-        };
-      }
-      else { json_cont.textContent = JSON.stringify("Выберете разные остановки", null, 2); }
-    };
-
-    async function viewRoute() {
-      const doc_obj = document.getElementById("view_route");
-      const id_obj = doc_obj.value;
-      const name_obj = doc_obj.options[doc_obj.selectedIndex].text;
-
-      const response = await fetch("/api/bus_view", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: id_obj, name: name_obj })
-      });
-      const data = await response.json();
-      const colors = ["red", "blue", "green", "orange", "purple", "yellow", "black", "white"];
-      let colorIndex = 0;
-
-      json_cont.textContent = JSON.stringify(data, null, 2);
-      routeLayerGroup.clearLayers();
-
-      data.result.forEach(route => {
-        const stops = route.stops;
-        const latlngs = stops.map(s => [s.lat, s.lon]);
-        const polyline = L.polyline(latlngs, { color: colors[colorIndex % colors.length], weight: 6 }).addTo(routeLayerGroup)
-        colorIndex++;
-      });
-    };
-
-    map.on('click', function (e) {
-      var lat = e.latlng.lat;
-      var lon = e.latlng.lng;
-
-      let data = {
-        message: "Вы выбрали точку с координатами:",
-        coordinates: { lat: lat, lon: lon }
-      };
-      if (!routeMode) {
-        json_cont.textContent = JSON.stringify(data, null, 2);
-      };
-
-    });
-
-    function map_all_view() {
-      function resetRoute() {
-        routeStops = [];
-        if (routeLine) {
-          map.removeLayer(routeLine);
-          routeLine = null;
-        }
-        routeMarkers.forEach(m => {
-          map.removeLayer(m); // убираем старые красные
-        });
-        routeMarkers = [];
-
-        // пересоздаём маркеры (чтобы вернуть им нормальный цвет)
-        stops.forEach(function (stop) {
-          L.marker([stop.lat, stop.lon]).addTo(map)
-            .bindPopup(stop.name)
-            .on('click', function () {
-              if (!routeMode) return;
-              var idx = routeStops.length + 1;
-
-              this.setIcon(new L.Icon({
-                iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png',
-                iconSize: [32, 32],
-                iconAnchor: [16, 32],
-                popupAnchor: [0, -32]
-              }));
-
-              this.bindTooltip(idx.toString(), { permanent: true, direction: "top" }).openTooltip();
-              routeStops.push({ lat: stop.lat, lon: stop.lon, order: idx });
-              routeMarkers.push(this);
-
-              drawRoute();
-            });
-        });
-      }
-      document.getElementById("toggleRouteMode").onclick = function () {
-        routeMode = !routeMode;
-        this.textContent = routeMode ? "Режим маршрута включен" : "Начать маршрут";
-        if (!routeMode) {
-          resetRoute(); // можно сбросить при выходе
-        }
-      };
-
-      function click_on_marker(marker, stop) {
-        if (!routeMode) return; // только в режиме маршрута
-
-        var idx = routeStops.length + 1;
-
-        // делаем маркер красным
-        marker.setIcon(new L.Icon({
-          iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png',
-          iconSize: [32, 32],
-          iconAnchor: [16, 32],
-          popupAnchor: [0, -32]
-        }));
-
-        // номер над маркером
-        marker.bindTooltip(idx.toString(), { permanent: true, direction: "top" }).openTooltip();
-
-        routeStops.push({ obj: stop, order: idx });
-
-        routeJsonView.push({ name: stop.name, order: idx });
-
-        json_cont.textContent = JSON.stringify(routeJsonView, null, 2);
-        routeMarkers.push(marker);
-
-        drawRoute();
-      }
-
-      function drawRoute() {
-        if (routeLine) {
-          map.removeLayer(routeLine);
-        }
-        var latlngs = routeStops.map(s => [s.obj.lat, s.obj.lon]);
-        routeLine = L.polyline(latlngs, { color: 'red', weight: 10 }).addTo(map);
-      };
-
-      stops.forEach(function (stop) {
-        let marker = L.marker([stop.lat, stop.lon]).addTo(map).bindPopup(stop.name);
-        marker.on('click', function () {
-          click_on_marker(marker, stop);
-        })
-      });
-    }
-  </script>
 </body>
 
 </html>

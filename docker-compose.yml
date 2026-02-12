@@ -5,21 +5,19 @@ services:
     container_name: db
     image: postgres:15
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres_password
-      DB_NAME: ${DB_NAME}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init-db.sh:/docker-entrypoint-initdb.d/01-init-db.sh
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER}" ]
       interval: 5s
       timeout: 5s
       retries: 10
+
 
   app:
     container_name: app
@@ -38,7 +36,13 @@ services:
     volumes:
       - .:/app
     command: >
-      sh -c "cd /app && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+      sh -c "
+      cd /app &&
+      alembic -c app/db/alembic.ini upgrade head &&
+      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      "
+
+  
 
   adminer:
     container_name: adminer
