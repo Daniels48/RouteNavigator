@@ -1,59 +1,55 @@
-# 🚌 Сервис поиска оптимального маршрута между остановками
+# 🚌 Поиск кратчайшего маршрута между остановками
 
-📌 О проекте
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-async-green)
+![Docker](https://img.shields.io/badge/Docker-ready-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)
+
+
+## 📌 О проекте
 
 Веб-приложение для поиска кратчайшего маршрута между двумя остановками общественного транспорта в г. Воронеж.
 
-Поиск маршрута реализован с использованием алгоритма A* (A-star) по графу остановок и маршрутов.
+Поиск маршрута реализован с использованием алгоритма ***A**** по графу остановок и маршрутов.
 
-🛠 Технологии
+## 🛠 Технологии
 
-Backend:
+### Backend ⚙️
+- **Python 3.10+**
+- **FastAPI** (async)
+- **SQLAlchemy** (async)
+- **PostgreSQL**
 
-Python 3.10+
-
-FastAPI (async)
-
-SQLAlchemy (async)
-
-PostgreSQL
-
-Frontend:
-
-Jinja2
-
-Leaflet.js
-
-OpenStreetMap tiles
+### Frontend 🎨
+- **Jinja2**
+- **Leaflet.js**
+- **OpenStreetMap**
 
 
-🚀 Запуск проекта
-1️⃣ Клонировать репозиторий
-git clone <repo_url>
-cd project
+## 🚀 Запуск проекта
 
-2️⃣ Создать виртуальное окружение
-python -m venv venv
-source venv/bin/activate
+### 1️⃣ Клонировать репозиторий
+```bash
+git clone https://github.com/Daniels48/RouteNavigator.git
+```
 
-3️⃣ Установить зависимости
-pip install -r requirements.txt
+### 2️⃣ Создать файл .env
+```env
+DB_NAME=mydb
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=example
+DB_PASSWORD=example
+```
 
-4️⃣ Настроить подключение к БД
+### 3️⃣ Запустить контейнеры
+```bash
+docker compose up -d --build
+```
 
-В файле конфигурации указать параметры PostgreSQL:
-
-DATABASE_URL=postgresql+asyncpg://user:password@localhost/dbname
-
-5️⃣ Запустить сервер
-uvicorn app.main:app --reload
-
-docker exec -it app alembic -c app/db/alembic.ini upgrade head
-
+### 4️⃣ Загрузить тестовые данные
+```bash
 docker exec -e PGPASSWORD=example -i db psql -U example -d mydb < 02_data.sql
+```
 
-
-
-Открыть в браузере:
-
-http://127.0.0.1:8000/
+### 5️⃣ Открыть в браузере: http://localhost:8000/
