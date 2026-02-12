@@ -1,4 +1,11 @@
-# Project exclude paths
-/venv/
+venv/
 .env
-/.idea
+
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.log
+
+.idea/
+*.pyc
