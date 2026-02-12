@@ -8,24 +8,21 @@
 
 🛠 Технологии
 
-Backend:
 
-Python 3.10+
+## ⚙️ Backend
 
-FastAPI (async)
+- Python 3.10+
+- FastAPI (async)
+- SQLAlchemy (async)
+- PostgreSQL
 
-SQLAlchemy (async)
+---
 
-PostgreSQL
+## 🎨 Frontend
 
-Frontend:
-
-Jinja2
-
-Leaflet.js
-
-OpenStreetMap tiles
-
+- Jinja2
+- Leaflet.js
+- OpenStreetMap tiles
 
 🚀 Запуск проекта
 1️⃣ Клонировать репозиторий
