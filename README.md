@@ -1,5 +1,11 @@
 # 🚌 Поиск кратчайшего маршрута между остановками
 
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-async-green)
+![Docker](https://img.shields.io/badge/Docker-ready-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)
+
+
 ## 📌 О проекте
 
 Веб-приложение для поиска кратчайшего маршрута между двумя остановками общественного транспорта в г. Воронеж.
