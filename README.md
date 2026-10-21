@@ -1,46 +1,46 @@
-# 🚌 Поиск кратчайшего маршрута между остановками
-
-![Python](https://img.shields.io/badge/Python-3.10+-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-async-green)
-![Docker](https://img.shields.io/badge/Docker-ready-blue)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)
-
-
-## 📌 О проекте
+# RouteNavigator
 
 Веб-приложение для поиска кратчайшего маршрута между двумя остановками общественного транспорта в г. Воронеж.
-
 Поиск маршрута реализован с использованием алгоритма ***A**** по графу остановок и маршрутов.
 
-## 🛠 Технологии
+## Возможности
 
-### Backend ⚙️
-- **Python 3.10+**
-- **FastAPI** (async)
-- **SQLAlchemy** (async)
-- **PostgreSQL**
+- Поиск кратчайшего маршрута между остановками общественного транспорта
+- Алгоритм A* для построения оптимального маршрута с учётом географических координат остановок
+- Расчёт маршрута с учётом количества остановок, средней скорости автобуса и дорожной загруженности
+- Отображение остановок и найденного маршрута на интерактивной карте
+- Визуализация маршрутов общественного транспорта
+- Работа с данными об остановках и маршрутах общественного транспорта
 
-### Frontend 🎨
-- **Jinja2**
-- **Leaflet.js**
-- **OpenStreetMap**
+## Технологии
+
+- Python
+- FastAPI
+- PostgreSQL
+- SQLAlchemy (async)
+- Jinja2
+- Leaflet.js
+- OpenStreetMap
+- Docker
 
 
-## 🚀 Запуск проекта
+##  Запуск проекта
 
 ### 1️⃣ Клонировать репозиторий
 ```bash
 git clone https://github.com/Daniels48/RouteNavigator.git
 ```
 
-### 2️⃣ Создать файл .env
-```env
-DB_NAME=mydb
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=example
-DB_PASSWORD=example
+
+### 2️⃣ Создать файл `.env`
+
+Скопируйте `.env.example` и переименуйте его в `.env`:
+
+```bash
+cp .env.example .env
 ```
+
+После этого при необходимости измените значения переменных в файле `.env`.
 
 ### 3️⃣ Запустить контейнеры
 ```bash
@@ -52,4 +52,7 @@ docker compose up -d --build
 docker exec -e PGPASSWORD=example -i db psql -U example -d mydb < 02_data.sql
 ```
 
-### 5️⃣ Открыть в браузере: http://localhost:8000/
+### 5️⃣ Открыть приложение
+```text
+http://localhost:8000/
+```
